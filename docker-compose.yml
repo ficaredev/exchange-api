@@ -1,0 +1,40 @@
+version: '3'
+services:
+#    exchange:
+#        build:
+#            context: .
+#            dockerfile: Dockerfile
+#        image: exchange
+#        env_file:
+#            - .env
+#        depends_on:
+#            - mysql
+#        networks:
+#            - exchange
+#        ports:
+#            - "1335:1335"
+
+    mysql:
+        image: 'mysql:8.0'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        volumes:
+            - 'exchangemysql:/var/lib/mysql'
+        networks:
+            - exchange
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+            retries: 3
+            timeout: 5s
+networks:
+    exchange:
+        driver: bridge
+volumes:
+    exchangemysql:
+        driver: local
